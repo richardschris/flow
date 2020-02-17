@@ -10,8 +10,6 @@ class FirstStep(Step):
 
 
 class SecondStep(Step):
-    final_step = True
-
     def execute(self, *args, **kwargs):
         state = kwargs.get('state', {})
         value = state.get('value')
@@ -22,26 +20,7 @@ class SecondStep(Step):
         return super().execute(*args, **kwargs)
 
 
-def test_workflow_create():
-    workflow = Workflow(state={'value': 3})
-    workflow.current_step = FirstStep(next_step=SecondStep())
-    workflow.execute()
-
-    assert workflow.state == {'value': 6}
-
-
-def test_workflow_state_update():
-    workflow = Workflow()
-    workflow.current_step = Step()
-    workflow.current_step.actions = [UserInputtedData()]
-    workflow.execute_step(custom_data={'yolo': 'swag'})
-
-    assert workflow.state == {'yolo': 'swag'}
-
-
 class ThirdStep(Step):
-    final_step = True
-
     def execute(self, *args, **kwargs):
         self.actions = [PrintAction(string='We picked this step!')]
         return super().execute()
@@ -55,13 +34,53 @@ class PickMeStep(ChoiceStep):
             return SecondStep()
 
 
-def test_choice_step():
-    workflow = Workflow()
-    choice_step = PickMeStep()
-    choice_step.actions = [UserInputtedData()]
-    workflow.current_step = FirstStep(next_step=choice_step)
-    workflow.execute_step()
-    workflow.execute_step(custom_data={'skip_me': True})
-    workflow.execute_step()
+class TestWorkflow:
+    def test_workflow_create(self):
+        workflow = Workflow(state={'value': 3})
+        workflow.current_step = FirstStep(next_step=SecondStep())
+        workflow.execute()
 
-    assert isinstance(workflow.current_step, ThirdStep)
+        assert workflow.state == {'value': 6}
+
+
+    def test_workflow_state_update(self):
+        workflow = Workflow()
+        workflow.current_step = Step()
+        workflow.current_step.actions = [UserInputtedData()]
+        workflow.execute_step(custom_data={'yolo': 'swag'})
+
+        assert workflow.state == {'yolo': 'swag'}
+
+
+    def test_choice_step(self):
+        workflow = Workflow()
+        choice_step = PickMeStep()
+        choice_step.actions = [UserInputtedData()]
+        workflow.current_step = FirstStep(next_step=choice_step)
+        workflow.execute_step()
+        workflow.execute_step(custom_data={'skip_me': True})
+        workflow.execute_step()
+
+        assert isinstance(workflow.current_step, ThirdStep)
+
+    def test_add_step(self, capsys):
+        workflow = Workflow()
+        workflow.add_step(FirstStep())
+        workflow.add_step(FirstStep())
+        workflow.execute_step()
+        workflow.execute_step()
+        captured = capsys.readouterr()
+        test_string = '''Hello World!
+Another String!
+Hello World!
+Another String!
+'''
+        assert captured.out == test_string
+
+    def test_add_step_ret_vals(self):
+        workflow = Workflow()
+        val1 = workflow.add_step(FirstStep())
+        val2 = workflow.add_step(FirstStep())
+
+        assert val1 == True
+        assert val2 == True
