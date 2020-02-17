@@ -1,4 +1,4 @@
-from flow.actions.examples import PrintAction, CalculateAction, UserInputtedData
+from flow.actions.examples import PrintAction, CalculateAction
 from flow.steps import Step, ChoiceStep
 
 

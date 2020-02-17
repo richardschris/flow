@@ -1,12 +1,12 @@
 from flow.core import Base
 from flow.core.mixins import AddStepMixin
 from flow.core.exceptions import TooManyNextStepsError
-from flow.steps.utils import evaluator_func, NextStepChoice
+from flow.steps.utils import NextStepChoice
 
 
 class Step(Base, AddStepMixin):
     """ Base class for steps
-    
+
     attributes:
      - actions: a list of actions the step performs
      - next_step: the next step
@@ -27,8 +27,8 @@ class Step(Base, AddStepMixin):
         super().__init__(*args, **kwargs)
 
     def execute(self, *args, **kwargs):
-        """ execute the actions and call the transition function. Any args/kwargs you 
-        pass in are by default passed to the actions 
+        """ execute the actions and call the transition function. Any args/kwargs you
+        pass in are by default passed to the actions
         """
         for action in self.actions:
             result = action.execute(*args, **kwargs)
@@ -54,12 +54,13 @@ class Step(Base, AddStepMixin):
         if action:
             self.actions.append(action)
             added_action = True
-        
+
         return added_action
 
 
 class ChoiceStep(Step):
     """ Base class for steps that can have multiple transitions """
+
     def __init__(self, next_step_selector=None, *args, **kwargs):
         self.next_step_selector = next_step_selector or self._next_step_selector
         super().__init__(*args, **kwargs)
@@ -78,13 +79,14 @@ class FixedChoiceStep(ChoiceStep):
     an array of NextStepChoices and executes the evaluators on them; if one succeeds,
     it transitions to the next step, otherwise, it raises an exception.
     """
+
     def __init__(self, choices=None, *args, **kwargs):
         """ choices must be a NextStepChoice or an array of NextStepChoices """
         self._choices = []
         choices = choices or []
         if isinstance(choices, NextStepChoice):
             choices = [choices]
-        
+
         for choice in choices:
             self.add_choice(choice)
 
@@ -106,5 +108,5 @@ class FixedChoiceStep(ChoiceStep):
 
         if len(successful_choices) != 1:
             raise TooManyNextStepsError
-            
+
         return successful_choices.pop()

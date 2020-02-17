@@ -1,12 +1,12 @@
 import pytest
 
 from flow.core.exceptions import TooManyNextStepsError
-from flow.steps import Step, ChoiceStep
+from flow.steps import Step
 from flow.workflow import Workflow
 from flow.steps import FixedChoiceStep
 from flow.steps.utils import NextStepChoice
 from flow.tests.steps import FirstStep, SecondStep, ThirdStep, PickMeStep
-from flow.actions.examples import UserInputtedData, CalculateAction
+from flow.actions.examples import UserInputtedData
 from flow.core.state import DotDictState
 
 
@@ -18,7 +18,6 @@ class TestWorkflow:
 
         assert workflow.state == {'value': 6}
 
-
     def test_workflow_state_update(self):
         workflow = Workflow()
         workflow.current_step = Step()
@@ -26,7 +25,6 @@ class TestWorkflow:
         workflow.execute_step(custom_data={'yolo': 'swag'})
 
         assert workflow.state == {'custom_data': {'yolo': 'swag'}}
-
 
     def test_choice_step(self):
         workflow = Workflow()

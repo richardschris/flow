@@ -7,7 +7,7 @@ class TestBase:
     def test_base_name(self):
         base = Base(name='foo')
         assert base.name == 'foo'
-    
+
     def test_base_repr(self):
         base = Base(name='foo')
         assert repr(base) == '<Base: foo>'
@@ -36,5 +36,5 @@ Another String!
         val1 = workflow.add_step(FirstStep())
         val2 = workflow.add_step(FirstStep())
 
-        assert val1 == True
-        assert val2 == True
+        assert val1
+        assert val2

@@ -15,7 +15,7 @@ class PrintAction(Action):
 class CalculateAction(Action):
     def __init__(self, value=None, *args, **kwargs):
         self.value = value
-    
+
     def execute(self, *args, **kwargs):
         if self.value:
             return {'value': 2 * self.value}
