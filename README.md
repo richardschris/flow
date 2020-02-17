@@ -68,7 +68,7 @@ Commonly, you need to move between steps and select which step you want to move 
 from flow.steps import ChoiceStep
 
 
-class PIckMeStep(ChoiceStep):
+class PickMeStep(ChoiceStep):
     def _evaluator_func(self, *args, **kwargs):
         if self.state.get('skip_me') is True:
             return ThirdStep()
@@ -77,10 +77,9 @@ class PIckMeStep(ChoiceStep):
 
 
 workflow = Workflow()
-choice_step = PIckMeStep()
+choice_step = PickMeStep()
 choice_step.actions = [UserInputtedData()]
 workflow.current_step = FirstStep(next_step=choice_step)
-workflow.state = {'test_data': 3}
 workflow.execute_step()
 workflow.execute_step(custom_data={'skip_me': True})
 workflow.execute_step()
