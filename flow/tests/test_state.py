@@ -18,6 +18,17 @@ class TestDotDictState:
         with pytest.raises(KeyError):
             state.test.more.not_here
 
+    def test_dot_dict_set_multiple_times(self):
+        state = DotDictState()
+        state.hi = 'hi'
+        assert state.hi == 'hi'
+
+        state.bye = {}
+        state.bye.foo = 'test'
+        assert state.bye.foo == 'test'
+        state.bye.foo = 'bar'
+        assert state.bye.foo == 'bar'
+
     def test_state_to_dict(self):
         state = DotDictState({'test': {'dict': 'val'}})
         d = state.to_dict()

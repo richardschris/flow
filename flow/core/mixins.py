@@ -4,7 +4,7 @@ class AddStepMixin:
     def step(self):
         step, _ = self._current_or_next_step
         return step
-    
+
     @step.setter
     def step(self, step_val):
         _, step_attr = self._current_or_next_step

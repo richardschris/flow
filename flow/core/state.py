@@ -62,6 +62,8 @@ class DotDictState(State):
             object.__setattr__(self, '_state', value)
         elif attr not in self.state:
             self._state[attr] = self._to_dict_state(value)
+        elif not isinstance(self._state[attr], (dict, DotDictState)):
+            self._state[attr] = self._to_dict_state(value)
         else:
             self._state[attr].update(self._to_dict_state(value))
 
