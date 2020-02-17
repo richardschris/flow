@@ -1,7 +1,8 @@
 from flow.steps import Step, ChoiceStep
 from flow.workflow import Workflow
 from flow.tests.steps import FirstStep, SecondStep, ThirdStep, PickMeStep
-from flow.actions.examples import UserInputtedData
+from flow.actions.examples import UserInputtedData, CalculateAction
+from flow.core.state import DotDictState
 
 
 class TestWorkflow:
@@ -32,3 +33,10 @@ class TestWorkflow:
         workflow.execute_step()
 
         assert isinstance(workflow.current_step, ThirdStep)
+
+    def test_dict_state_in_workflow(self):
+        workflow = Workflow(state=DotDictState({'value': 3}))
+        workflow.current_step = SecondStep()
+        workflow.execute_step()
+
+        assert workflow.state.state == {'value': 6}
