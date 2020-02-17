@@ -55,7 +55,6 @@ class DotDictState(State):
         return self._state[item]
 
     def __getattr__(self, attr):
-        print(self._state)
         return self._state[attr]
 
     def __setattr__(self, attr, value):
