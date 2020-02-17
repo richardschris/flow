@@ -17,6 +17,9 @@ class State(Base):
     def __setattr__(self, key, value):
         raise NotImplementedError
 
+    def __contains__(self, value):
+        raise NotImplementedError
+
     @property
     def state(self):
         return self._state
@@ -57,18 +60,21 @@ class DotDictState(State):
     def __getattr__(self, attr):
         return self._state[attr]
 
+    def __contains__(self, value):
+        return value in self._state
+
     def __setattr__(self, attr, value):
         if attr == '_state':
             object.__setattr__(self, '_state', value)
         elif attr not in self.state:
-            self._state[attr] = self._to_dict_state(value)
+            self._state[attr] = self._to_dict_state(attr, value)
         elif not isinstance(self._state[attr], (dict, DotDictState)):
-            self._state[attr] = self._to_dict_state(value)
+            self._state[attr] = self._to_dict_state(attr, value)
         else:
-            self._state[attr].update(self._to_dict_state(value))
+            self._state[attr].update(self._to_dict_state(attr, value))
 
     def __setitem__(self, key, value):
-        self._state[key] = self._to_dict_state(value)
+        self._state[key] = self._to_dict_state(key, value)
 
     @property
     def state(self):
@@ -118,7 +124,13 @@ class DotDictState(State):
                 data[k] = v
         return data
 
-    def _to_dict_state(self, data):
-        if not isinstance(data, (dict, DotDictState)):
-            return data
-        return DotDictState(state=data)
+    def _to_dict_state(self, key, value):
+        if (
+                key and
+                key in self._state and
+                not isinstance(self._state[key], (dict, DotDictState))
+        ):
+            return value
+        if not isinstance(value, (dict, DotDictState)):
+            return value
+        return DotDictState(state=value)

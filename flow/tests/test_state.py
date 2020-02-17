@@ -29,6 +29,12 @@ class TestDotDictState:
         state.bye.foo = 'bar'
         assert state.bye.foo == 'bar'
 
+    def test_dot_dict_in(self):
+        state = DotDictState({'test': {'dict': 'val'}})
+
+        assert 'test' in state
+        assert 'dict' in state.test
+
     def test_state_to_dict(self):
         state = DotDictState({'test': {'dict': 'val'}})
         d = state.to_dict()
