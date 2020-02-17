@@ -22,5 +22,8 @@ class CalculateAction(Action):
 
 
 class UserInputtedData(Action):
-    def execute(self, custom_data=None, *args, **kwargs):
-        return custom_data
+    def execute(self, custom_data=None, flat=False, *args, **kwargs):
+        if flat:
+            return custom_data
+            
+        return {'custom_data': custom_data}

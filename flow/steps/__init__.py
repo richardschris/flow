@@ -1,7 +1,8 @@
+from flow.core import Base
 from flow.core.mixins import AddStepMixin
 
 
-class Step(AddStepMixin):
+class Step(Base, AddStepMixin):
     actions = []
     next_step = None
     final_step = False
@@ -10,6 +11,7 @@ class Step(AddStepMixin):
     def __init__(self, next_step=None, state=None, *args, **kwargs):
         self.next_step = next_step
         self.state = state or {}
+        super().__init__(*args, **kwargs)
 
     def execute(self, *args, **kwargs):
         for action in self.actions:
