@@ -1,4 +1,7 @@
-class Step:
+from flow.core.mixins import AddStepMixin
+
+
+class Step(AddStepMixin):
     actions = []
     next_step = None
     final_step = False
@@ -21,7 +24,27 @@ class Step:
             return self.state, next_step
         elif self.next_step:
             return self.state, self.next_step
-        elif self.final_step:
-            return self.state, None
         else:
-            raise NotImplementedError
+            return self.state, None
+
+    def add_action(self, action=None):
+        added_action = False
+        if action:
+            self.actions.extend(action)
+            added_action = True
+        
+        return added_action
+
+
+class ChoiceStep(Step):
+    def __init__(self, evaluator=None, *args, **kwargs):
+        self.evaluator = evaluator or self._evaluator_func
+        super().__init__(*args, **kwargs)
+
+    def transition(self, *args, **kwargs):
+        next_step = self.evaluator(*args, **kwargs)
+
+        return self.state, next_step
+
+    def _evaluator_func(self, *args, **kwargs):
+        raise NotImplementedError

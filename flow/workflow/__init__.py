@@ -1,5 +1,7 @@
-class Workflow:
-    first_step = None
+from flow.core.mixins import AddStepMixin
+
+
+class Workflow(AddStepMixin):
     current_step = None
     state = None
 
@@ -17,5 +19,6 @@ class Workflow:
 
     def execute_step(self, *args, **kwargs):
         state, next_step = self.current_step.execute(state=self.state, *args, **kwargs)
-        self.current_step = next_step
+        if next_step:
+            self.current_step = next_step
         self.state.update(state)

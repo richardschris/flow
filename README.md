@@ -1,6 +1,6 @@
 # FLOW - A WORKFLOW LIBRARY/SERVICE
 
-Commonly, developers need to create workflows in applications. Whether this is a step-by-step process, or a divergent "go to this step, and do these actions, skipping this other step", or even tracking a ticket through a flow, there is no common way to do this. This project aims to solve several issues that I've experienced in working with custom workflow systems and provide a general framework for executing and tracking them.
+Commonly, developers need to create workflows in applications. Whether this is a step-by-step process, or a divergent "go to this step, and do these actions, skipping this other step", or even tracking a ticket through a flow, there is no common way to do this. This project aims to solve several issues that I've experienced in working with custom workflow systems and provide a general framework for executing and tracking them. Examples include shopping, enrollment, and ticketing systems. This is not meant as a one size fits all framework, but as a framework within which to build your particular applications.
 
 The core principles of Flow are
 
@@ -59,3 +59,40 @@ workflow.current_step.final_step = True
 workflow.execute_step(custom_data={'yolo': 'swag'})
 print(workflow.state)
 ```
+
+## MOVING BETWEEN STEPS
+
+Commonly, you need to move between steps and select which step you want to move to. It is easy to override the `transition()` function that gets called at the end of every step, but you can also inherit from the `ChoiceStep`, which defines an `_evaluator_func()` or can be passed a function at initialization to define the evaluator. This evaluator should execute whatever logic it needs to in order to transition to the correct step.
+
+``` python
+from flow.steps import ChoiceStep
+
+
+class PIckMeStep(ChoiceStep):
+    def _evaluator_func(self, *args, **kwargs):
+        if self.state.get('skip_me') is True:
+            return ThirdStep()
+        else:
+            return SecondStep()
+
+
+workflow = Workflow()
+choice_step = PIckMeStep()
+choice_step.actions = [UserInputtedData()]
+workflow.current_step = FirstStep(next_step=choice_step)
+workflow.state = {'test_data': 3}
+workflow.execute_step()
+workflow.execute_step(custom_data={'skip_me': True})
+workflow.execute_step()
+```
+
+This means that you can have a workflow where a user can click a button and return to a previous step, as well: it is agnostic about what steps are next.
+
+## THE FUTURE
+
+Currently my focus is on core functionality and developer ergonomics. But as I settle on an API and an architecture, things are likely to change dramatically. The goals are, in some semblance of order.
+
+1. Store/retrieve current workflow state in a database.
+2. Allow resumption of workflows.
+3. Create diagrams of workflows from execution flows.
+4. Load workflow schemas from yaml files

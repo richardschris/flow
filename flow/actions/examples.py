@@ -23,4 +23,4 @@ class CalculateAction(Action):
 
 class UserInputtedData(Action):
     def execute(self, custom_data=None, *args, **kwargs):
-        return {'this is custom data': custom_data}
+        return custom_data
