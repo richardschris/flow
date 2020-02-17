@@ -60,16 +60,18 @@ workflow.execute_step(custom_data={'yolo': 'swag'})
 print(workflow.state)
 ```
 
+States can be dictionaries, or custom objects that ought to inherit and implement the methods on the `State` class. Currently there is a `DotDictState` which allows access to state values via dot-attributes and dictionary accessors.
+
 ## MOVING BETWEEN STEPS
 
-Commonly, you need to move between steps and select which step you want to move to. It is easy to override the `transition()` function that gets called at the end of every step, but you can also inherit from the `ChoiceStep`, which defines an `_evaluator_func()` or can be passed a function at initialization to define the evaluator. This evaluator should execute whatever logic it needs to in order to transition to the correct step.
+Commonly, you need to move between steps and select which step you want to move to. It is easy to override the `transition()` function that gets called at the end of every step, but you can also inherit from the `ChoiceStep`, which defines an `_next_step_selector()` or can be passed a function at initialization to define the `next_step_selector`. This `next_step_selector` should execute whatever logic it needs to in order to transition to the correct step and return the correct step.
 
 ``` python
 from flow.steps import ChoiceStep
 
 
 class PickMeStep(ChoiceStep):
-    def _evaluator_func(self, *args, **kwargs):
+    def _next_step_selector(self, *args, **kwargs):
         if self.state.get('skip_me') is True:
             return ThirdStep()
         else:

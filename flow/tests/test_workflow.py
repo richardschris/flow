@@ -1,5 +1,7 @@
 from flow.steps import Step, ChoiceStep
 from flow.workflow import Workflow
+from flow.steps import FixedChoiceStep
+from flow.steps.utils import NextStepChoice
 from flow.tests.steps import FirstStep, SecondStep, ThirdStep, PickMeStep
 from flow.actions.examples import UserInputtedData, CalculateAction
 from flow.core.state import DotDictState
@@ -33,6 +35,29 @@ class TestWorkflow:
         workflow.execute_step()
 
         assert isinstance(workflow.current_step, ThirdStep)
+
+    def test_fixed_choice_step(self, capsys):
+        workflow = Workflow()
+        choice_step = FixedChoiceStep()
+        choice_step.actions = [UserInputtedData()]
+
+        def evaluator_1(state, *args, **kwargs):
+            return state.get('test')
+
+        next_step_1 = NextStepChoice(step=FirstStep(), evaluator=evaluator_1)
+
+        def evaluator_2(state, *args, **kwargs):
+            return state.get('success')
+
+        next_step_2 = NextStepChoice(step=ThirdStep(), evaluator=evaluator_2)
+        choice_step.add_choice(next_step_1)
+        choice_step.add_choice(next_step_2)
+        workflow.current_step = choice_step
+        workflow.execute_step(custom_data={'success': True}, flat=True)
+        workflow.execute_step()
+        captured = capsys.readouterr()
+
+        assert captured.out == 'We picked this step!\n'
 
     def test_dict_state_in_workflow(self):
         workflow = Workflow(state=DotDictState({'value': 3}))

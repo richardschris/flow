@@ -26,7 +26,7 @@ class ThirdStep(Step):
 
 
 class PickMeStep(ChoiceStep):
-    def _evaluator_func(self, *args, **kwargs):
+    def _next_step_selector(self, *args, **kwargs):
         if self.state.get('skip_me') is True:
             return ThirdStep()
         else:

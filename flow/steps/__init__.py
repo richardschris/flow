@@ -1,5 +1,6 @@
 from flow.core import Base
 from flow.core.mixins import AddStepMixin
+from flow.steps.utils import evaluator_func, NextStepChoice
 
 
 class Step(Base, AddStepMixin):
@@ -39,14 +40,39 @@ class Step(Base, AddStepMixin):
 
 
 class ChoiceStep(Step):
-    def __init__(self, evaluator=None, *args, **kwargs):
-        self.evaluator = evaluator or self._evaluator_func
+    def __init__(self, next_step_selector=None, *args, **kwargs):
+        self.next_step_selector = next_step_selector or self._next_step_selector
         super().__init__(*args, **kwargs)
 
     def transition(self, *args, **kwargs):
-        next_step = self.evaluator(*args, **kwargs)
+        next_step = self.next_step_selector(*args, **kwargs)
 
         return self.state, next_step
 
-    def _evaluator_func(self, *args, **kwargs):
+    def _next_step_selector(self, *args, **kwargs):
         raise NotImplementedError
+
+
+class FixedChoiceStep(ChoiceStep):
+    def __init__(self, choices=None, *args, **kwargs):
+        self._choices = []
+        choices = choices or []
+        if isinstance(choices, NextStepChoice):
+            choices = [choices]
+        
+        self._choices.extend(choices)
+        super().__init__(*args, **kwargs)
+
+    def add_choice(self, choice):
+        self._choices.append(choice)
+
+    def _next_step_selector(self, *args, **kwargs):
+        successful_choices = []
+        for choice in self._choices:
+            if choice.evaluator(state=self.state, *args, **kwargs):
+                successful_choices.append(choice.step)
+
+        if len(successful_choices) != 1:
+            raise Exception
+            
+        return successful_choices.pop()

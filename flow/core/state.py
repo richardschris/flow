@@ -5,16 +5,16 @@ class State(Base):
     def __init__(self, *args, **kwargs):
         self._state = None
 
-    def __getitem__(self, item, *args, **kwargs):
+    def __getitem__(self, item):
         raise NotImplementedError
 
-    def __getattr__(self, attr, *args, **kwargs):
+    def __getattr__(self, attr):
         raise NotImplementedError
 
-    def __setitem__(self, key, value, *args, **kwargs):
+    def __setitem__(self, key, value):
         raise NotImplementedError
 
-    def __setattr__(self, key, value, *args, **kwargs):
+    def __setattr__(self, key, value):
         raise NotImplementedError
 
     @property
@@ -24,6 +24,18 @@ class State(Base):
     @state.setter
     def state(self, state=None):
         self._state = state
+
+    def to_dict(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def update(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def get(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def pop(self, item, *args, **kwargs):
+        raise NotImplementedError
 
 
 class DotDictState(State):
@@ -62,20 +74,20 @@ class DotDictState(State):
     def state(self, state=None):
         self._state.update(state or {})
 
-    def update(self, items):
+    def update(self, items, *args, **kwargs):
         for k, v in items.items():
             if isinstance(v, (dict)):
                 self._state[k] = DotDictState(v)
             else:
                 self._state[k] = v
 
-    def get(self, item):
+    def get(self, item, *args, **kwargs):
         if item in self._state:
             return self._state[item]
         else:
             return None
 
-    def pop(self, item):
+    def pop(self, item, *args, **kwargs):
         if item in self._state:
             value = self._state[item]
             del self._state[item]
@@ -83,11 +95,14 @@ class DotDictState(State):
         else:
             return None
 
-    def items(self):
+    def items(self, *args, **kwargs):
+        return self._items()
+
+    def _items(self, *args, **kwargs):
         data = self._state.to_dict()
         return data.items()
 
-    def to_dict(self):
+    def to_dict(self, *args, **kwargs):
         data = {}
         for k, v in self._state.items():
             if isinstance(v, DotDictState):
