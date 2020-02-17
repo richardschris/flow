@@ -55,13 +55,16 @@ class DotDictState(State):
         return self._state[item]
 
     def __getattr__(self, attr):
+        print(self._state)
         return self._state[attr]
 
     def __setattr__(self, attr, value):
         if attr == '_state':
             object.__setattr__(self, '_state', value)
-        else:
+        elif attr not in self.state:
             self._state[attr] = self._to_dict_state(value)
+        else:
+            self._state[attr].update(self._to_dict_state(value))
 
     def __setitem__(self, key, value):
         self._state[key] = self._to_dict_state(value)
@@ -99,7 +102,10 @@ class DotDictState(State):
         return self._items()
 
     def _items(self, *args, **kwargs):
-        data = self._state.to_dict()
+        if isinstance(self._state, dict):
+            data = self._state
+        else:
+            data = self._state.to_dict()
         return data.items()
 
     def to_dict(self, *args, **kwargs):

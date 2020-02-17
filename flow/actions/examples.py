@@ -1,5 +1,6 @@
 from flow.actions import Action
 
+
 class PrintAction(Action):
     def __init__(self, string=None, *args, **kwargs):
         self.string = string

@@ -1,3 +1,6 @@
+import pytest
+
+from flow.core.exceptions import TooManyNextStepsError
 from flow.steps import Step, ChoiceStep
 from flow.workflow import Workflow
 from flow.steps import FixedChoiceStep
@@ -40,16 +43,12 @@ class TestWorkflow:
         workflow = Workflow()
         choice_step = FixedChoiceStep()
         choice_step.actions = [UserInputtedData()]
-
-        def evaluator_1(state, *args, **kwargs):
-            return state.get('test')
-
-        next_step_1 = NextStepChoice(step=FirstStep(), evaluator=evaluator_1)
-
-        def evaluator_2(state, *args, **kwargs):
-            return state.get('success')
-
-        next_step_2 = NextStepChoice(step=ThirdStep(), evaluator=evaluator_2)
+        next_step_1 = NextStepChoice(
+            step=FirstStep(), evaluator=lambda state, *args, **kwargs: state.get('test')
+        )
+        next_step_2 = NextStepChoice(
+            step=ThirdStep(), evaluator=lambda state, *args, **kwargs: state.get('success')
+        )
         choice_step.add_choice(next_step_1)
         choice_step.add_choice(next_step_2)
         workflow.current_step = choice_step
@@ -58,6 +57,33 @@ class TestWorkflow:
         captured = capsys.readouterr()
 
         assert captured.out == 'We picked this step!\n'
+
+    def test_bad_fixed_choice_step(self):
+        choice_step = FixedChoiceStep()
+        next_step = FirstStep()
+        with pytest.raises(TypeError):
+            choice_step.add_choice(next_step)
+
+    def test_too_many_steps_choice_step(self, capsys):
+        workflow = Workflow()
+        choice_step = FixedChoiceStep()
+        choice_step.actions = [UserInputtedData()]
+
+        def evaluator_1(state, *args, **kwargs):
+            return True
+
+        next_step_1 = NextStepChoice(step=FirstStep(), evaluator=evaluator_1)
+
+        def evaluator_2(state, *args, **kwargs):
+            return True
+
+        next_step_2 = NextStepChoice(step=ThirdStep(), evaluator=evaluator_2)
+        choice_step.add_choice(next_step_1)
+        choice_step.add_choice(next_step_2)
+        workflow.current_step = choice_step
+
+        with pytest.raises(TooManyNextStepsError):
+            workflow.execute_step(custom_data={'success': True}, flat=True)
 
     def test_dict_state_in_workflow(self):
         workflow = Workflow(state=DotDictState({'value': 3}))

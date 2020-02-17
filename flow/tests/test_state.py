@@ -1,3 +1,4 @@
+import pytest
 from flow.core.state import DotDictState
 
 
@@ -5,6 +6,17 @@ class TestDotDictState:
     def test_state_dot(self):
         state = DotDictState({'test': {'dict': 'val'}})
         assert state.test.dict == 'val'
+
+    def test_real_deep_dot_dict_set_and_get(self):
+        state = DotDictState({'test': {'dict': 'val'}})
+        state.test.more = {'lets': {'go': {'deeper': 'yeah!'}}}
+        state.test.more = {'another': ['test', 'here', 'we', 'go']}
+
+        assert state.test.more.lets.go.deeper == 'yeah!'
+        assert state.test.more.another == ['test', 'here', 'we', 'go']
+
+        with pytest.raises(KeyError):
+            state.test.more.not_here
 
     def test_state_to_dict(self):
         state = DotDictState({'test': {'dict': 'val'}})

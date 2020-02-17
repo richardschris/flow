@@ -60,7 +60,7 @@ workflow.execute_step(custom_data={'yolo': 'swag'})
 print(workflow.state)
 ```
 
-States can be dictionaries, or custom objects that ought to inherit and implement the methods on the `State` class. Currently there is a `DotDictState` which allows access to state values via dot-attributes and dictionary accessors.
+States can be dictionaries, or custom objects that ought to inherit and implement the methods on the `State` class. Currently there is an example (fully functional) `DotDictState` which allows access to state values via dot-attributes and dictionary accessors. The core concept with state management is that states ought to be handled in Python as dictionary-like objects, with the `State` class handling internals as needed. So if you are storing your state in, say, Postgres, you should implement a `PostgresState` class. A workflow should be ignorant as to what sort of data store is backing the state.
 
 ## MOVING BETWEEN STEPS
 
@@ -87,13 +87,14 @@ workflow.execute_step(custom_data={'skip_me': True})
 workflow.execute_step()
 ```
 
-This means that you can have a workflow where a user can click a button and return to a previous step, as well: it is agnostic about what steps are next.
+This means that you can have a workflow where a user can click a button and return to a previous step, as well: it is agnostic about what steps are next. There is also a `FixedChoiceStep` class; as documentation does not exist yet, see the tests.
 
 ## THE FUTURE
 
 Currently my focus is on core functionality and developer ergonomics. But as I settle on an API and an architecture, things are likely to change dramatically. The goals are, in some semblance of order.
 
-1. Store/retrieve current workflow state in a database.
-2. Allow resumption of workflows.
-3. Create diagrams of workflows from execution flows.
-4. Load workflow schemas from yaml files
+1. Excellent documentation and developer ergonomics.
+2. Store/retrieve current workflow state in a database.
+3. Allow resumption of workflows.
+4. Create diagrams of workflows from execution flows.
+5. Load workflow schemas from external files

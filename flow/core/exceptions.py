@@ -1,0 +1,2 @@
+class TooManyNextStepsError(Exception):
+    pass
