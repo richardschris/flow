@@ -1,4 +1,3 @@
-import pytest
 from flow.steps import Step, ChoiceStep
 from flow.workflow import Workflow
 from flow.actions.examples import PrintAction, CalculateAction, UserInputtedData
