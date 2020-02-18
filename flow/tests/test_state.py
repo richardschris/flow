@@ -29,6 +29,11 @@ class TestDotDictState:
         state.bye.foo = 'bar'
         assert state.bye.foo == 'bar'
 
+    def test_deep_access_without_items(self):
+        state = DotDictState({'test': {'dict': 'val'}})
+        with pytest.raises(KeyError):
+            state.test.nothing.can.be.found.here
+
     def test_dot_dict_in(self):
         state = DotDictState({'test': {'dict': 'val'}})
 

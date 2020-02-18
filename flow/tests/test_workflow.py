@@ -83,7 +83,7 @@ class TestWorkflow:
         with pytest.raises(TooManyNextStepsError):
             workflow.execute_step(custom_data={'success': True}, flat=True)
 
-    def test_dict_state_in_workflow(self):
+    def test_dot_dict_state_in_workflow(self):
         workflow = Workflow(state=DotDictState({'value': 3}))
         workflow.current_step = SecondStep()
         workflow.execute_step()
