@@ -3,7 +3,8 @@ import pytest
 from flow.core.exceptions import TooManyNextStepsError
 from flow.steps import Step
 from flow.workflow import Workflow
-from flow.steps import FixedChoiceStep
+from flow.workflow.builder import WorkflowBuilder, StepTypes
+from flow.steps import FixedChoiceStep, ChoiceStep
 from flow.steps.utils import NextStepChoice
 from flow.tests.steps import FirstStep, SecondStep, ThirdStep, PickMeStep
 from flow.actions.examples import UserInputtedData
@@ -89,3 +90,28 @@ class TestWorkflow:
         workflow.execute_step()
 
         assert workflow.state.state == {'value': 6}
+
+
+class TestWorkflowBuilder:
+    def test_new_workflow(self):
+        workflow = WorkflowBuilder.new_workflow(state={'yolo': 'swag'})
+        assert isinstance(workflow, WorkflowBuilder)
+        assert isinstance(workflow.workflow, Workflow)
+        assert workflow.workflow.state == {'yolo': 'swag'}
+
+    def test_workflow_step_types(self):
+        workflow = WorkflowBuilder.new_workflow(state={'yolo': 'swag'})
+        workflow.make_step(step_type=StepTypes.choice)
+        assert isinstance(workflow.workflow.current_step, ChoiceStep)
+
+    def test_workflow_step_kwargs(self):
+        workflow = WorkflowBuilder.new_workflow(state={'yolo': 'swag'})
+        workflow.make_step(
+            step_type=StepTypes.fixed_choice
+        )
+        assert isinstance(workflow.workflow.step, FixedChoiceStep)
+        workflow.make_action(
+            action=UserInputtedData
+        )
+        assert len(workflow.workflow.step.actions) == 1
+        assert isinstance(workflow.workflow.step.actions[0], UserInputtedData)

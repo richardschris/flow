@@ -1,8 +1,8 @@
 from flow.core import Base
-from flow.core.mixins import AddStepMixin
+from flow.core.mixins import AddStepMixin, WorkflowSearchMixin
 
 
-class Workflow(Base, AddStepMixin):
+class Workflow(Base, WorkflowSearchMixin, AddStepMixin):
     name = None
     current_step = None
     state = None

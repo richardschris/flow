@@ -1,10 +1,10 @@
 from flow.core import Base
-from flow.core.mixins import AddStepMixin
+from flow.core.mixins import AddStepMixin, WorkflowSearchMixin
 from flow.core.exceptions import TooManyNextStepsError
 from flow.steps.utils import NextStepChoice
 
 
-class Step(Base, AddStepMixin):
+class Step(Base, AddStepMixin, WorkflowSearchMixin):
     """ Base class for steps
 
     attributes:
@@ -48,14 +48,10 @@ class Step(Base, AddStepMixin):
         else:
             return self.state, None
 
-    def add_action(self, action=None):
+    def add_action(self, action=None, *args, **kwargs):
         """ Add an action to the action list. """
-        added_action = False
         if action:
-            self.actions.append(action)
-            added_action = True
-
-        return added_action
+            self.actions.append(action())
 
 
 class ChoiceStep(Step):

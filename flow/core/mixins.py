@@ -35,3 +35,11 @@ class AddStepMixin:
             return self.next_step, 'next_step'
         else:
             raise NotImplementedError
+
+
+class WorkflowSearchMixin:
+    def find_last_step(self):
+        if self.step:
+            return self.step.find_last_step()
+        else:
+            return self
